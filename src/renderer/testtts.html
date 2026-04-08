@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Test TTS - wHako</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: #e0e0e0; padding: 40px; }
+        h1 { color: #6366f1; }
+        textarea { width: 100%; height: 120px; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; }
+        button { padding: 10px 24px; background: #6366f1; border: none; color: white; border-radius: 8px; cursor: pointer; font-size: 14px; margin: 4px; }
+        button:hover { background: #4f46e5; }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+        #log { background: #111; border: 1px solid #222; padding: 12px; margin-top: 20px; height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; white-space: pre-wrap; color: #aaa; }
+        .error { color: #ef4444; }
+        .success { color: #22c55e; }
+        .info { color: #6366f1; }
+        #audioResult { margin-top: 16px; }
+        audio { width: 100%; margin-top: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Test TTS - Google Translate</h1>
+
+    <label>Text to speak:</label>
+    <textarea id="inputText">Xin chào, đây là bài test TTS tiếng Việt. Tôi đang đọc một đoạn văn mẫu.</textarea>
+
+    <div style="margin-top: 12px;">
+        <button id="testBtn" onclick="testTTS()">Test TTS</button>
+        <button id="playBtn" onclick="playAudio()" disabled>Play</button>
+    </div>
+
+    <div id="audioResult"></div>
+    <div id="log"></div>
+
+    <script>
+        let lastBase64 = null;
+
+        function log(msg, type) {
+            const el = document.getElementById('log');
+            const line = document.createElement('div');
+            line.className = type || '';
+            line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+            el.appendChild(line);
+            el.scrollTop = el.scrollHeight;
+        }
+
+        async function testTTS() {
+            const text = document.getElementById('inputText').value.trim();
+            if (!text) { log('Vui long nhap text', 'error'); return; }
+
+            const btn = document.getElementById('testBtn');
+            btn.disabled = true;
+            lastBase64 = null;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('audioResult').innerHTML = '';
+
+            log('Testing TTS...', 'info');
+            log('Text len: ' + text.length, 'info');
+            log('Text hex: ' + Array.from(text.slice(0, 20)).map(c => c.charCodeAt(0).toString(16)).join(' '), 'info');
+            log('Text preview: ' + text.substring(0, 80), 'info');
+
+            try {
+                log('Calling fetchTTS via IPC...');
+                const result = await window.electronAPI.fetchTTS({ text, lang: 'vi' });
+                log('Result: ' + JSON.stringify(result)?.substring(0, 200), result?.error ? 'error' : 'success');
+
+                if (result && result.base64Audio) {
+                    lastBase64 = result.base64Audio;
+                    log('Got base64 audio, length: ' + result.base64Audio.length, 'success');
+
+                    // Show audio player
+                    const audioUrl = 'data:audio/mp3;base64,' + result.base64Audio;
+                    document.getElementById('audioResult').innerHTML =
+                        '<audio controls src="' + audioUrl + '"></audio>';
+                    document.getElementById('playBtn').disabled = false;
+                    log('Audio ready to play!', 'success');
+                } else {
+                    log('No audio in result: ' + JSON.stringify(result), 'error');
+                }
+            } catch (e) {
+                log('Exception: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function playAudio() {
+            if (!lastBase64) return;
+            const audio = new Audio('data:audio/mp3;base64,' + lastBase64);
+            audio.play();
+            log('Playing audio...');
+            audio.onended = () => log('Audio ended.');
+            audio.onerror = (e) => log('Audio error: ' + JSON.stringify(e), 'error');
+        }
+    </script>
+</body>
+</html>

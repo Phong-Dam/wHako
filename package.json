@@ -1,0 +1,72 @@
+{
+  "name": "whako",
+  "version": "1.0.0",
+  "description": "wHako - Đọc Light Novel Online",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
+    "lint": "eslint src/ scripts/ --ext .js",
+    "lint:fix": "eslint src/ scripts/ --ext .js --fix",
+    "prettier": "prettier --write \"src/**/*.js\" \"scripts/**/*.js\"",
+    "icons": "node scripts/generate-icons.js"
+  },
+  "keywords": [
+    "lightnovel",
+    "manga",
+    "comic",
+    "reader",
+    "electron"
+  ],
+  "author": "wHako",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.14.0",
+    "dotenv": "^17.4.1",
+    "electron-updater": "^6.8.3",
+    "google-tts-api": "^2.0.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "electron": "^41.1.0",
+    "electron-builder": "^25.1.8",
+    "electron-icon-maker": "^0.0.5",
+    "eslint": "^10.2.0",
+    "eslint-plugin-electron": "^7.0.0",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1",
+    "sharp": "^0.34.5"
+  },
+  "build": {
+    "appId": "com.whako.app",
+    "productName": "wHako",
+    "asar": true,
+    "asarUnpack": [
+      "assets/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets",
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*"
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "assets/icons/win/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icons/mac/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icons/png/512x512.png"
+    }
+  }
+}

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wHako - Đọc Light Novel</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/reader.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Current Page Indicator -->
+    <div id="currentPageIndicator" style="position: fixed; bottom: 80px; right: 16px; background: rgba(30, 30, 30, 0.9); border: 1px solid #3a3a3a; border-radius: 8px; padding: 8px 14px; font-size: 13px; color: #fff; z-index: 60; display: none; backdrop-filter: blur(8px);">
+        <i class="fas fa-book-open mr-2" style="color: #6366f1;"></i>
+        <span id="currentPageText">Trang 1</span>
+    </div>
+
+    <!-- Navbar (sidebar, header, stats, pagination) -->
+    <div id="navbar-container">
+<!-- Sidebar Filter -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            <i class="fas fa-sliders"></i>
+            Bộ lọc
+        </div>
+        <button class="sidebar-close" onclick="toggleSidebar()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-content">
+        <!-- Type Filter -->
+        <div class="filter-group">
+            <div class="filter-label">Loại truyện</div>
+            <div class="filter-tags">
+                <button class="filter-tag active" data-filter="type" data-value="truyendich">
+                    <i class="fas fa-globe mr-1"></i>Truyện dịch
+                </button>
+                <button class="filter-tag" data-filter="type" data-value="sangtac">
+                    <i class="fas fa-pen mr-1"></i>Sáng tác
+                </button>
+                <button class="filter-tag" data-filter="type" data-value="convert">
+                    <i class="fas fa-file-export mr-1"></i>Convert
+                </button>
+            </div>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="filter-group">
+            <div class="filter-label">Tình trạng</div>
+            <div class="filter-tags">
+                <button class="filter-tag active" data-filter="status" data-value="dangtienhanh">
+                    <i class="fas fa-play mr-1"></i>Đang tiến hành
+                </button>
+                <button class="filter-tag" data-filter="status" data-value="tamngung">
+                    <i class="fas fa-pause mr-1"></i>Tạm ngưng
+                </button>
+                <button class="filter-tag" data-filter="status" data-value="hoanthanh">
+                    <i class="fas fa-check mr-1"></i>Hoàn thành
+                </button>
+            </div>
+        </div>
+
+        <!-- Sort -->
+        <div class="filter-group">
+            <div class="filter-label">Sắp xếp</div>
+            <div class="filter-tags" style="flex-direction: column; gap: 4px;">
+                <label class="sort-radio">
+                    <input type="radio" name="sortRadio" value="top" checked>
+                    <span>Top toàn thời gian</span>
+                </label>
+                <label class="sort-radio">
+                    <input type="radio" name="sortRadio" value="topthang">
+                    <span>Top tháng</span>
+                </label>
+                <label class="sort-radio">
+                    <input type="radio" name="sortRadio" value="capnhat">
+                    <span>Mới cập nhật</span>
+                </label>
+                <label class="sort-radio">
+                    <input type="radio" name="sortRadio" value="truyenmoi">
+                    <span>Truyện mới</span>
+                </label>
+                <label class="sort-radio">
+                    <input type="radio" name="sortRadio" value="theodoi">
+                    <span>Theo dõi</span>
+                </label>
+                <label class="sort-radio">
+                    <input type="radio" name="sortRadio" value="sotu">
+                    <span>Số từ</span>
+                </label>
+                <label class="sort-radio">
+                    <input type="radio" name="sortRadio" value="tentruyen">
+                    <span>A - Z</span>
+                </label>
+                <label class="sort-radio">
+                    <input type="radio" name="sortRadio" value="tentruyenza">
+                    <span>Z - A</span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Header -->
+<header class="bg-dark-800 border-b border-white/5 sticky top-0 z-50">
+    <div class="px-4 py-3">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="w-9 h-9 flex items-center justify-center rounded-lg bg-dark-700 hover:bg-dark-600 text-gray-400 hover:text-white transition-colors">
+                    <i class="fas fa-sliders text-sm"></i>
+                </button>
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 bg-indigo-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-book text-white text-xs"></i>
+                    </div>
+                    <span class="text-lg font-bold text-indigo-400">wHako</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="showHistory()" class="w-9 h-9 flex items-center justify-center rounded-lg bg-dark-700 hover:bg-dark-600 text-gray-400 hover:text-white transition-colors" title="Lịch sử đọc">
+                    <i class="fas fa-history text-sm"></i>
+                </button>
+                <button onclick="refreshPage()" class="w-9 h-9 flex items-center justify-center rounded-lg bg-dark-700 hover:bg-dark-600 text-gray-400 hover:text-white transition-colors" title="Làm mới trang này">
+                    <i class="fas fa-sync-alt text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Stats Bar -->
+<div class="px-4 py-2 bg-dark-900 border-b border-white/5">
+    <div class="flex items-center justify-between text-xs text-gray-500">
+        <span id="stats"></span>
+        <span id="currentSort" class="text-gray-600"></span>
+    </div>
+</div>
+
+<!-- Pagination -->
+<div class="pagination">
+    <button class="pagination-btn" id="prevBtn" onclick="prevPage()" title="Trang trước" disabled>
+        <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <div class="page-input-wrapper">
+        <input type="number" class="page-input" id="pageInput" value="1" min="1" placeholder="Trang" onkeydown="if(event.key==='Enter'){goToPage(this.value);this.blur()}">
+        <span class="page-total">/ <span id="totalPages">1</span></span>
+    </div>
+
+    <button class="pagination-btn" id="nextBtn" onclick="nextPage()" title="Trang sau">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+</div>
+    </div>
+
+    <!-- Home (comic list) -->
+    <div id="home-container" style="padding-bottom: 80px;">
+<!-- Comic List -->
+<div id="pageLoader" class="page-loader">
+    <div class="page-spinner"></div>
+</div>
+<div id="pageError" class="page-error" style="display: none;">
+    <i class="fas fa-wifi-slash text-4xl text-gray-600 mb-4"></i>
+    <div id="pageErrorMsg" class="text-gray-500 mb-4"></div>
+    <button id="retryBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
+        <i class="fas fa-redo mr-2"></i>Thử lại
+    </button>
+</div>
+<main id="comicMain">
+    <div class="comic-list" id="comicList"></div>
+    <div class="loading" id="loadMoreIndicator" style="display: none;">
+        <div class="page-spinner" style="width:20px;height:20px;border-width:2px;"></div>
+        <span>Đang tải thêm...</span>
+    </div>
+</main>
+    </div>
+
+    <!-- Detail (detail page) -->
+    <div id="detail-container" style="display: none; position: fixed; inset: 0; z-index: 300;">
+<!-- Detail Page container -->
+<div id="detailPage" class="dp-root hidden">
+</div>
+    </div>
+
+    <!-- Reader (inline reader overlay) -->
+    <div id="reader-container" style="position: fixed; inset: 0; z-index: 400; display: none;">
+        <!-- Topbar -->
+        <div class="rd-topbar">
+            <button class="rd-back-btn" id="rdBackBtn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Quay lại</span>
+            </button>
+            <div class="rd-title-info">
+                <div class="rd-comic-name" id="rdComicName"></div>
+                <div class="rd-chapter-name" id="rdChapterName"></div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="rd-loading" id="rdLoading">
+            <div class="rd-spinner"></div>
+            <span style="font-style:italic;">Đang tải nội dung...</span>
+        </div>
+
+        <!-- Error -->
+        <div class="rd-error dp-hidden" id="rdError">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="rdErrorText"></span>
+        </div>
+
+        <!-- Content -->
+        <div class="rd-content dp-hidden" id="rdContent">
+            <div class="rd-vol-title" id="rdVolTitle"></div>
+            <h1 class="rd-ch-title" id="rdChTitle"></h1>
+            <div id="rdText" class="rd-text"></div>
+            <div id="rdImages" class="rd-images"></div>
+        </div>
+
+        <!-- Bottom nav -->
+        <div class="rd-nav" id="rdNav" style="display:none;">
+            <button class="rd-nav-btn" id="rdPrevBtn" disabled>
+                <i class="fas fa-chevron-left"></i>
+                <span>Chương trước</span>
+            </button>
+            <button class="rd-nav-btn" id="rdNextBtn" disabled>
+                <span>Chương sau</span>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- History screen -->
+    <div id="history-container-wrapper">
+        <div id="history-container" class="history-screen dp-hidden">
+            <div class="history-header">
+                <button class="back-btn" onclick="hideHistory()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 class="history-title">Lịch sử đọc</h2>
+                <button class="history-clear-btn" id="historyClearBtn" onclick="clearAllHistory()" title="Xóa tất cả">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+
+            <div class="history-list" id="historyList">
+                <!-- Items injected by JS -->
+            </div>
+
+            <div class="history-empty" id="historyEmpty" style="display:none">
+                <i class="fas fa-clock"></i>
+                <p>Chưa có lịch sử đọc</p>
+            </div>
+
+            <div class="history-loading" id="historyLoading" style="display:none">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0a0a0a',
+                            800: '#121212',
+                            700: '#1a1a1a',
+                            600: '#222222',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="core/utils.js"></script>
+    <script src="core/state.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/home.js"></script>
+    <script src="components/tts.js"></script>
+    <script src="components/detail.js"></script>
+    <script src="components/history.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
