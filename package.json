@@ -57,7 +57,7 @@
       "assets/**/*"
     ],
     "win": {
-      "target": "portable",
+      "target": "nsis",
       "icon": "assets/icons/win/icon.ico"
     },
     "mac": {
