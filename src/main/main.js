@@ -4,17 +4,15 @@ const path = require('path');
 // ============================================================
 // Configuration
 // ============================================================
-let isDev = true;
-try {
-    isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
-} catch (_) { /* app not ready */ }
-
 // Load environment variables if dotenv is available
 let BASE_URL = 'https://docln.sbs';
 try {
     require('dotenv').config();
     if (process.env.BASE_URL) BASE_URL = process.env.BASE_URL;
 } catch (_) { /* dotenv optional */ }
+
+// isDev is determined after app is ready to ensure app.isPackaged is accurate
+let isDev = false;
 
 // ============================================================
 // App Lifecycle
@@ -116,66 +114,8 @@ function registerUpdateIpcHandlers() {
 // Menu
 // ============================================================
 function createAppMenu() {
-    const template = [
-        {
-            label: 'File',
-            submenu: [
-                { role: 'quit' }
-            ]
-        },
-        {
-            label: 'View',
-            submenu: [
-                { role: 'reload' },
-                { role: 'forceReload' },
-                { type: 'separator' },
-                { role: 'resetZoom' },
-                { role: 'zoomIn' },
-                { role: 'zoomOut' },
-                { type: 'separator' },
-                { role: 'togglefullscreen' }
-            ]
-        },
-        {
-            label: 'Window',
-            submenu: [
-                { role: 'minimize' },
-                { role: 'close' }
-            ]
-        },
-        {
-            label: 'Debug',
-            submenu: [
-                {
-                    label: 'Test TTS',
-                    click: () => {
-                        const testWin = new BrowserWindow({
-                            width: 600, height: 700,
-                            title: 'Test TTS',
-                            webPreferences: {
-                                preload: __dirname + '/../preload/preload.js',
-                                contextIsolation: true,
-                                nodeIntegration: false,
-                            }
-                        });
-                        testWin.loadFile(__dirname + '/../renderer/testtts.html');
-                    }
-                }
-            ]
-        }
-    ];
-
-    if (isDev) {
-        template[1].submenu.push({ type: 'separator' });
-        template[1].submenu.push({ role: 'toggleDevTools' });
-    }
-
-    const menu = Menu.buildFromTemplate(template);
-    if (isDev) {
-        Menu.setApplicationMenu(menu);
-    } else {
-        Menu.setApplicationMenu(null);
-    }
+    // Always hide the menu bar (File, View, Window)
+    Menu.setApplicationMenu(null);
 }
 
 // ============================================================
@@ -195,7 +135,7 @@ function createWindow() {
             nodeIntegration: false,
             webSecurity: !isDev,
         },
-        autoHideMenuBar: false,
+        autoHideMenuBar: true,
         frame: true,
         icon: path.join(__dirname, '..', '..', 'assets', 'icon.png'),
     });
@@ -206,6 +146,7 @@ function createWindow() {
     // Show window when ready
     mainWindow.once('ready-to-show', () => {
         mainWindow.show();
+        //mainWindow.setFullScreen(true);
     });
 
     mainWindow.on('closed', () => {
@@ -233,6 +174,9 @@ function createWindow() {
 // App Events
 // ============================================================
 app.whenReady().then(() => {
+    // Determine isDev after app is ready — app.isPackaged is now reliable
+    isDev = !app.isPackaged;
+
     createAppMenu();
     createWindow();
 

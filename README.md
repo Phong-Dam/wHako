@@ -1,17 +1,28 @@
 # wHako - Đọc Light Novel Online
 
-Ứng dụng desktop Electron để đọc light novel tiếng Việt trực tuyến. Nội dung được lấy từ **docln.sbs**.
+Ứng dụng Electron desktop để đọc light novel tiếng Việt trực tuyến từ **docln.sbs**, hỗ trợ TTS và lịch sử đọc.
 
 ## Tính năng
 
-- **Đọc light novel** với giao diện mượt mà
-- **Text-to-Speech (TTS)** - đọc truyện tự động bằng Google Translate API
+- **Đọc light novel** với giao diện dark mode mượt mà
+- **Text-to-Speech (TTS)** - nghe truyện tự động bằng Google Translate
 - **TTS nâng cao** - điều chỉnh tốc độ, cao độ giọng nói
-- **Image cache** - lưu trữ hình ảnh trong RAM (tối đa 500MB, LRU eviction)
-- **Lịch sử đọc** - lưu tiến độ đọc, tự động ghi nhận thời gian đọc
-- **Lazy loading** - reader được load khi cần để tối ưu bộ nhớ
+- **Image cache** - lưu hình ảnh trong RAM (LRU, tối đa 500MB)
+- **Lịch sử đọc** - lưu tiến độ, tự động ghi nhận thời gian đọc
 - **Infinite scroll** - duyệt truyện không giới hạn
-- **Dark theme** - giao diện tối dịu mắt
+
+## Hình ảnh
+
+| Màn hình | Mô tả |
+|----------|-------|
+| ![HomeScreen](images/HomeScreen.png) | **Trang chủ** - Danh sách truyện với infinite scroll |
+| ![BookFilter](images/BookFilter.png) | **Bộ lọc** - Lọc truyện theo thể loại |
+| ![Detail](images/Detail.png) | **Chi tiết truyện** - Thông tin và danh sách chương |
+| ![Toc](images/Toc.png) | **Mục lục** - Danh sách các chương |
+| ![Reader](images/Reader.png) | **Trình đọc** - Giao diện đọc truyện |
+| ![TTS](images/TTS.png) | **TTS** - Nghe truyện với giọng đọc tự động |
+| ![History](images/History.png) | **Lịch sử** - Tiến độ đọc các truyện |
+| ![TTSFilter](images/TTS_Filter.png) | **TTS Filter** - Bộ lọc cho chế độ TTS |
 
 ## Cài đặt
 
@@ -19,19 +30,15 @@
 # Cài đặt dependencies
 npm install
 
-# Chạy ở chế độ development
+# Chạy development
 npm run dev
 
 # Build cho nền tảng hiện tại
 npm run build
 
-# Build cho Windows
+# Build cho Windows / macOS / Linux
 npm run build:win
-
-# Build cho macOS
 npm run build:mac
-
-# Build cho Linux
 npm run build:linux
 ```
 
@@ -44,40 +51,40 @@ npm run build:linux
 
 ```
 wHako/
-├── assets/                    # Icon ứng dụng (ico, png, icns)
-├── scripts/                   # Script build (generate-icons.js)
 ├── src/
 │   ├── main/                  # Electron main process
-│   │   ├── main.js          # Window, menu, auto-updater
-│   │   ├── scraper.js       # HTTP fetching, HTML parsing, IPC handlers
+│   │   ├── main.js           # Window, menu, auto-updater
+│   │   ├── scraper.js        # HTTP fetching, HTML parsing, IPC handlers
 │   │   └── utils/
-│   │       ├── constants.js  # Hằng số (MAX_RETRIES, CACHE_SIZE...)
-│   │       ├── crypto.js     # Giải mã nội dung chapter (XOR/shuffle)
-│   │       ├── history.js    # Lưu lịch sử đọc (JSON)
-│   │       ├── imageCache.js # In-memory cache hình ảnh (LRU 500MB)
-│   │       └── sanitizer.js  # Sanitize HTML
+│   │       ├── constants.js   # Hằng số (MAX_RETRIES, CACHE_SIZE...)
+│   │       ├── crypto.js      # Giải mã nội dung chapter (XOR/shuffle)
+│   │       ├── history.js     # Lưu lịch sử đọc (JSON)
+│   │       ├── imageCache.js  # In-memory cache hình ảnh (LRU 500MB)
+│   │       └── sanitizer.js   # Sanitize HTML
 │   ├── preload/
-│   │   └── preload.js       # Context bridge cho IPC
-│   └── renderer/             # Giao diện (vanilla JS, Tailwind CDN)
-│       ├── app.js            # Root orchestrator
-│       ├── state.js          # Global state (window.AppState)
-│       ├── navbar.js         # Sidebar, header, pagination
-│       ├── home.js           # Comic list, infinite scroll
-│       ├── detail.js         # Chi tiết truyện, danh sách chapter
-│       ├── reader.js         # Reader (lazy-loaded khi mở chapter)
-│       ├── history.js        # Màn hình lịch sử đọc
-│       ├── tts.js            # TTS via Web Audio API
-│       ├── utils.js          # Utilities (escHtml, formatNumber...)
+│   │   └── preload.js        # Context bridge cho IPC
+│   └── renderer/              # Giao diện (vanilla JS, Tailwind CDN)
 │       ├── index.html        # Entry point
-│       └── styles/           # CSS files
-├── .env.example              # Template cấu hình
+│       ├── app.js            # Root orchestrator
+│       ├── components/
+│       │   ├── navbar.js     # Sidebar, header, pagination
+│       │   ├── home.js       # Comic list, infinite scroll
+│       │   ├── detail.js     # Chi tiết truyện, danh sách chapter
+│       │   ├── reader.js     # Reader (lazy-loaded khi mở chapter)
+│       │   ├── history.js    # Màn hình lịch sử đọc
+│       │   └── tts.js        # TTS via Web Audio API
+│       ├── core/
+│       │   ├── state.js      # Global state (window.AppState)
+│       │   └── utils.js      # Utilities (escHtml, formatNumber...)
+│       └── styles/
+│           ├── styles.css    # Main styles
+│           └── reader.css    # Reader styles
+├── assets/                   # Icon ứng dụng
 ├── package.json
 └── README.md
 ```
 
-## Kiến trúc
-
-### IPC Flow
+## IPC Flow
 
 ```
 Renderer (window.electronAPI.*)
@@ -89,51 +96,17 @@ Main Process (scraper.js)
 docln.sbs
 ```
 
-Các IPC handlers chính:
 | Handler | Mô tả |
 |---------|-------|
-| `scrape-page` | Lấy danh sách truyện (trang chủ, thịnh hành...) |
+| `scrape-page` | Lấy danh sách truyện |
 | `scrape-detail` | Lấy chi tiết truyện, danh sách chapter |
 | `scrape-chapter` | Lấy nội dung chapter (đã giải mã) |
 | `tts-google` | Fetch audio TTS |
 | `history-get/add/remove` | Quản lý lịch sử đọc |
 
-### Content Decoding
-
-Site nguồn mã hoá text bằng XOR/shuffle. Xem `src/main/utils/crypto.js`:
-- `data-s` - method
-- `data-k` - key
-- `data-c` - chunks base64 (sort theo numeric prefix, decode)
-
-### TTS
-
-- Main process: `fetchTTSNode` post lên Google Translate endpoint
-- Renderer: Web Audio API playback với prefetch, rate/pitch control
-- Auto-next chapter khi đọc xong (nếu bật)
-
-### Image Cache
-
-- In-memory Map với LRU eviction
-- Tối đa 500MB
-- Prefetch 5 ảnh đồng thời mỗi trang
-- Trả về `data:image/...;base64,...` URI
-
-## Scripts
-
-| Script | Mô tả |
-|--------|-------|
-| `npm run dev` | Chạy ứng dụng |
-| `npm run build` | Build cho nền tảng hiện tại |
-| `npm run build:win` | Build cho Windows (.exe portable) |
-| `npm run build:mac` | Build cho macOS (.dmg) |
-| `npm run build:linux` | Build cho Linux (.AppImage) |
-| `npm run lint` | Kiểm tra lint |
-| `npm run lint:fix` | Tự động sửa lint |
-| `npm run prettier` | Format code |
-
 ## Cấu hình
 
-Tạo file `.env` để override:
+Tạo file `.env` để thay đổi base URL:
 
 ```env
 BASE_URL=https://docln.sbs
@@ -144,7 +117,6 @@ BASE_URL=https://docln.sbs
 - **Electron 41** - Desktop framework
 - **axios** - HTTP client
 - **electron-updater** - Auto-update
-- **dotenv** - Environment variables
 - **Tailwind CSS** (CDN) - Styling
 - **Vanilla JS** - Không bundler, không framework
 
