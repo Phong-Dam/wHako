@@ -28,6 +28,14 @@
             }
         };
 
+        // Detail back button - go back to detail page
+        document.getElementById('rdDetailBackBtn').onclick = () => {
+            if (currentComic?.slug && typeof window.openDetail === 'function') {
+                closeReader();
+                window.openDetail(currentComic.slug);
+            }
+        };
+
         // Chapter navigation
         document.getElementById('rdPrevBtn').onclick = () => navigateChapter('prev');
         document.getElementById('rdNextBtn').onclick = () => navigateChapter('next');
