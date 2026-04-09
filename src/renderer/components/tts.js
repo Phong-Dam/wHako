@@ -39,6 +39,7 @@
     let settings = {
         rate: 1.0,
         pitch: 1.0,
+        volume: 1.0,
         autoNext: false,
         autoScroll: true,
         readChapterTitle: false,
@@ -127,6 +128,7 @@
             if (saved) Object.assign(settings, JSON.parse(saved));
             settings.rate = Math.max(0.5, Math.min(2.0, settings.rate || 1.0));
             settings.pitch = Math.max(0.5, Math.min(2.0, settings.pitch || 1.0));
+            settings.volume = Math.max(0, Math.min(1.0, settings.volume !== undefined ? settings.volume : 1.0));
             settings.autoScroll = !!settings.autoScroll;
             settings.readChapterTitle = !!settings.readChapterTitle;
         } catch (e) {}
@@ -261,6 +263,11 @@
                     <input type="range" class="tts-range" id="ttsPitchRange" min="0.5" max="2" step="0.25" value="${settings.pitch}">
                     <span class="tts-range-value tts-clickable" id="ttsPitchValue" title="Click để sửa">${settings.pitch.toFixed(2)}</span>
                 </div>
+                <div class="tts-range-row">
+                    <span class="tts-range-label">Âm lượng</span>
+                    <input type="range" class="tts-range" id="ttsVolumeRange" min="0" max="1" step="0.1" value="${settings.volume}">
+                    <span class="tts-range-value tts-clickable" id="ttsVolumeValue" title="Click để sửa">${settings.volume.toFixed(1)}</span>
+                </div>
                 <div class="tts-toggle-row">
                     <span class="tts-toggle-label">Tự động chuyển chương</span>
                     <div class="tts-toggle${settings.autoNext ? ' on' : ''}" id="ttsAutoNextToggle"></div>
@@ -361,6 +368,7 @@
 
         bindSync('ttsRateRange', null, 'ttsRateValue', 'rate', 0.5, 2.0, '', v => currentSource && (currentSource.playbackRate.value = v));
         bindSync('ttsPitchRange', null, 'ttsPitchValue', 'pitch', 0.5, 2.0, '', v => currentSource && (currentSource.detune.value = pitchToDetune(v)));
+        bindSync('ttsVolumeRange', null, 'ttsVolumeValue', 'volume', 0, 1.0, '', v => gainNode && (gainNode.gain.value = v));
 
         document.getElementById('ttsAutoNextToggle').addEventListener('click', function () {
             settings.autoNext = !settings.autoNext;
@@ -416,6 +424,7 @@
 
         makeInlineEditor(document.getElementById('ttsRateValue'), document.getElementById('ttsRateRange'), 'rate', 0.5, 2.0, v => currentSource && (currentSource.playbackRate.value = v));
         makeInlineEditor(document.getElementById('ttsPitchValue'), document.getElementById('ttsPitchRange'), 'pitch', 0.5, 2.0, v => currentSource && (currentSource.detune.value = pitchToDetune(v)));
+        makeInlineEditor(document.getElementById('ttsVolumeValue'), document.getElementById('ttsVolumeRange'), 'volume', 0, 1.0, v => gainNode && (gainNode.gain.value = v));
 
         document.getElementById('ttsProgressBar').addEventListener('click', function (e) {
             if (!currentSentences.length) return;
@@ -714,7 +723,7 @@
                 currentSource.playbackRate.value = settings.rate;
                 currentSource.detune.value = pitchToDetune(settings.pitch);
                 currentSource.connect(localGainNode);
-                localGainNode.gain.value = 1.0;
+                localGainNode.gain.value = settings.volume;
 
                 await new Promise((resolve) => {
                     currentSource.onended = resolve;
